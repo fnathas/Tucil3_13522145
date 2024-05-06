@@ -24,7 +24,6 @@ class Node {
 @Service
 public class GreedyBestFirst {
     public Result greedyBestFirst(String start, String goal) {
-        long startTime = System.currentTimeMillis();
 
         Set<String> dictionary = new HashSet<>();
         try {
@@ -32,10 +31,6 @@ public class GreedyBestFirst {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingInt(node -> node.cost));
-        Set<String> visited = new HashSet<>();
-        queue.add(new Node(start, heuristic(start, goal), null));
 
         if (!dictionary.contains(start) || !dictionary.contains(goal)) {
             throw new IllegalArgumentException("Start or end word is not in the dictionary");
@@ -45,13 +40,17 @@ public class GreedyBestFirst {
             throw new IllegalArgumentException("Start and end word must have the same length");
         }
 
+        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingInt(node -> node.cost));
+        Set<String> visited = new HashSet<>();
+        queue.add(new Node(start, heuristic(start, goal), null));
+
         while (!queue.isEmpty()) {
             Node current = queue.poll();
             visited.add(current.word);
 
             if (current.word.equals(goal)) {
-                long endTime = System.currentTimeMillis();
-                return new Result(nodeToList(current), endTime - startTime, visited.size());
+                return new Result(nodeToList(current), visited.size());
+        
             }
 
             for (int i = 0; i < current.word.length(); i++) {
@@ -66,13 +65,13 @@ public class GreedyBestFirst {
             }
         }
 
-        return null;
+        return new Result(null, visited.size());
     }
 
     private List<String> nodeToList(Node node) {
         List<String> list = new ArrayList<>();
         while (node != null) {
-            list.add(0, node.word); // Add to the start of the list to maintain order
+            list.add(0, node.word);
             node = node.parent;
         }
         return list;
@@ -87,13 +86,4 @@ public class GreedyBestFirst {
         }
         return cost;
     }
-
-//    public static void main(String[] args) {
-//        GreedyBestFirst gb = new GreedyBestFirst();
-//        Node result = gb.greedyBestFirst("stone", "money");
-//        while (result != null) {
-//            System.out.println(result.word);
-//            result = result.parent;
-//        }
-//    }
 }

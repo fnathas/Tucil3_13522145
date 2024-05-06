@@ -24,7 +24,6 @@ class Node {
 @Service
 public class UCS {
     public Result ucs(String start, String goal) {
-        long startTime = System.currentTimeMillis();
 
         Set<String> dictionary = new HashSet<>();
         try {
@@ -50,8 +49,7 @@ public class UCS {
             visited.add(current.word);
 
             if (current.word.equals(goal)) {
-                long endTime = System.currentTimeMillis();
-                return new Result(nodeToList(current), endTime - startTime, visited.size());
+                return new Result(nodeToList(current), visited.size());
             }
 
             for (int i = 0; i < current.word.length(); i++) {
@@ -66,24 +64,15 @@ public class UCS {
             }
         }
 
-        return null; // Return null if no ladder is found
+        return new Result(null, visited.size());
     }
 
     private List<String> nodeToList(Node node) {
         List<String> list = new ArrayList<>();
         while (node != null) {
-            list.add(0, node.word); // Add to the start of the list to maintain order
+            list.add(0, node.word);
             node = node.parent;
         }
         return list;
     }
-
-//    public static void main(String[] args) {
-//        UCS ucs = new UCS();
-//        Node result = ucs.ucs("hit", "cog");
-//        while (result != null) {
-//            System.out.println(result.word);
-//            result = result.parent;
-//        }
-//    }
 }

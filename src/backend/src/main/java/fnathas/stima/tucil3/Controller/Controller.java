@@ -28,23 +28,28 @@ public class Controller {
 
     @GetMapping(value = "/run", produces = "application/json")
     public Map<String, Object> runAlgorithm(@RequestParam String start, @RequestParam String goal, @RequestParam String algorithm) {
+        long startTime = System.currentTimeMillis();
+        long usedMemoryBefore = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         Object result = switch (algorithm.toLowerCase()) {
             case "ucs" -> ucs.ucs(start, goal);
             case "astar" -> aStar.aStar(start, goal);
             case "gbfs" -> greedyBestFirst.greedyBestFirst(start, goal);
             default -> throw new IllegalArgumentException("Invalid algorithm: " + algorithm);
         };
+        long usedMemoryAfter = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long executionTime = System.currentTimeMillis() - startTime;
+        long memoryUsed = (usedMemoryAfter - usedMemoryBefore) / 1024;
 
+        Map<String, Object> map = new HashMap<>();
         if (result instanceof Result) {
             Result res = (Result) result;
-            Map<String, Object> map = new HashMap<>();
             map.put("path", res.getPath());
-            map.put("executionTime", res.getExecutionTime());
-            map.put("totalNodesVisited", res.getTotalNodesVisited());
-            return map;
+            map.put("memoryUsed", memoryUsed);
+        } else {
+            map.put("path", null);
         }
-        Map<String, Object> map = new HashMap<>();
-        map.put("path", null);
+        map.put("executionTime", executionTime);
+        map.put("totalNodesVisited", ((Result) result).getTotalNodesVisited());
         return map;
     }
 }
