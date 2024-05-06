@@ -27,7 +27,8 @@ function App() {
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
-        if (isLoading) {
+        let intervalId: NodeJS.Timeout | null = null
+        if (isLoading) {    
             // Call the API here
             fetch(`http://localhost:8080/run?start=${startWord}&goal=${endWord}&algorithm=${algorithm}`)
                 .then(response => {
@@ -55,7 +56,16 @@ function App() {
                 })
                 .finally(() => {
                     setIsLoading(false)
+                    if (intervalId) {
+                        clearInterval(intervalId)
+                    }
                 })
+        } 
+
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId)
+            }
         }
     }, [isLoading])
 
@@ -105,7 +115,17 @@ function App() {
                             <DialogTrigger>
                                 <Button className="cursor-pointer w-[175px] bg-gray-950 hover:bg-gray-500 active:bg-gray-400" onClick={handleSubmit}>Submit</Button>
                             </DialogTrigger>
-                            {data && ( // Only render the DialogContent when there's no error
+                            {isLoading && (
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Loading...</DialogTitle>
+                                    </DialogHeader>
+                                    <DialogDescription>
+                                        <p>Please wait for the result.</p>
+                                    </DialogDescription>
+                                </DialogContent>
+                            )}
+                            {data && ( // Only render the DialogContent when there's no error and showDialog is true
                                 <DialogContent>
                                     <DialogHeader>
                                         <DialogTitle>Result</DialogTitle>
@@ -114,11 +134,15 @@ function App() {
                                         {data.path !== null ? (
                                             <div>
                                                 <p>Path: {data.path.join(' -> ')}</p>
-                                                <p >Execution Time: {data.executionTime}</p>
+                                                <p>Execution Time: {data.executionTime} ms</p>
                                                 <p>Node Visited: {data.totalNodesVisited}</p>
                                             </div>
                                         ) : (
-                                            <p>No path found</p>
+                                            <div>
+                                                <p>No path found</p>
+                                                <p>Execution Time: {data.executionTime} ms</p>
+                                                <p>Node Visited: {data.totalNodesVisited}</p>
+                                            </div>
                                         )}
                                     </DialogDescription>
                                 </DialogContent>
