@@ -43,7 +43,8 @@ public class Controller {
             map.put("totalNodesVisited", res.getTotalNodesVisited());
             return map;
         }
-
-        return null;
+        Map<String, Object> map = new HashMap<>();
+        map.put("path", null);
+        return map;
     }
 }

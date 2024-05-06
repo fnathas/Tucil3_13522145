@@ -14,9 +14,9 @@ import {
 import './App.css'
 
 type data = {
-    executionTime: number
+    executionTime?: number
     path: string[]
-    totalNodesVisited: number
+    totalNodesVisited?: number
 }
 
 function App() {
@@ -25,7 +25,6 @@ function App() {
     const [algorithm, setAlgorithm] = useState('')
     const [data, setData] = useState<data | null>(null)
     const [isLoading, setIsLoading] = useState(false)
-    const [errorMessage, setErrorMessage] = useState('')
 
     useEffect(() => {
         if (isLoading) {
@@ -52,7 +51,6 @@ function App() {
                     console.error('There was an error!', error)
                     if (error.message) {
                         alert(error.message)
-                        setErrorMessage(error.message)
                     }
                 })
                 .finally(() => {
@@ -113,7 +111,7 @@ function App() {
                                         <DialogTitle>Result</DialogTitle>
                                     </DialogHeader>
                                     <DialogDescription>
-                                        {errorMessage !== 'Unexpected end of JSON input' ? (
+                                        {data.path !== null ? (
                                             <div>
                                                 <p>Path: {data.path.join(' -> ')}</p>
                                                 <p >Execution Time: {data.executionTime}</p>
